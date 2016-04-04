@@ -25,11 +25,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 
-var currentPlayers = [];
-
-// Socket Functions
-var sf = [];
-
 function findValueArray(value, array) {
 	for (var i = 0; i < array.length; i++) {
 		if (array[i][0] == value) {
@@ -37,6 +32,17 @@ function findValueArray(value, array) {
 		}
 	}
 }
+
+function random(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+var currentPlayers = [];
+var gold = { top: random(0, (500 - 32) ), left: random(0, (600 - 32) ) };
+currentPlayers = [['golden-star', gold.top, gold.left, 'Golden Star', 'images/golden-star.png']];
+
+// Socket Functions
+var sf = [];
 
 sf.push([
 	'connection',
@@ -49,7 +55,7 @@ sf.push([
 		console.log(socket.client.conn.id + ' has joined.');
 
 		// Base setup for a new user.
-		currentPlayers.push([socket.client.conn.id, 20, 20]);
+		currentPlayers.push([socket.client.conn.id, 20, 20, socket.client.conn.id, 'images/mario.png', 0]);
 		
 		// Tell everyone where everyone is.
 		socket.broadcast.emit('current', currentPlayers);
@@ -66,6 +72,33 @@ sf.push([
 			// Set the position of the user on the board.
 			currentPlayers[arrayID][1] = data.top;
 			currentPlayers[arrayID][2] = data.left;
+
+			// Setup Golden star detection.
+			var top = { min: currentPlayers[0][1], max: currentPlayers[0][1] + 32 };
+			var left = { min: currentPlayers[0][2], max: currentPlayers[0][2] + 32 };
+
+			for (var i = 1; i < currentPlayers.length; i++) {
+				var posWin = currentPlayers[i];
+
+				if (posWin[3] === null) {
+					console.log('Gone Null');
+				}
+
+				// This shit is a bitch to explain.
+				// Short -> Checks if any of the players are in the golden star.
+				if ( ( (( posWin[1] < top.max ) && ( posWin[1] > top.min )) || (( posWin[1] + 32 < top.max) && (posWin[1] + 32 > top.min)) ) &&
+				( (( posWin[2] < left.max ) && ( posWin[2] > left.min )) || (( posWin[2] + 32 < left.max ) && ( posWin[2] + 32  > left.min )) ) ) {
+					
+					if (typeof currentPlayers[i][5] === 'undefined') {
+						currentPlayers[i][5] = 1;
+					} else {
+						currentPlayers[i][5]++;
+					}
+					var gold = { top: random(0, (500 - 32) ), left: random(0, (600 - 32) ) };
+					currentPlayers[0][1] = gold.top;
+					currentPlayers[0][2] = gold.left;
+				}
+			}
 
 			// Tell everyone that a player has moved.
 			socket.broadcast.emit('moved', currentPlayers);

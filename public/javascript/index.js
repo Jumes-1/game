@@ -79,6 +79,9 @@ function check() {
 		if (typeof p[3] === 'undefined') {} else {
 			temp += "<td>" + p[3] + "</td>";
 		}
+		if (typeof p[5] === 'undefined') {} else {
+			temp += "<td>" + p[5] + "</td>";
+		}
 
 		temp += "</tr>";
 		str += temp;
