@@ -27,7 +27,9 @@ var $myCanvas = $('#canvas');
 var allPlayers = [];
 var myId;
 var pos = {top: 0, left: 0};
+
 var moveSpeed = 2;
+var size = 32;
 
 var socket = io.connect('http://94.174.147.13');
 
@@ -89,17 +91,41 @@ function check() {
 setInterval(check, 10);
 
 function move() {
-	if (Key.isDown(Key.UP)) pos.top -= moveSpeed;
-	if (Key.isDown(Key.LEFT)) pos.left -= moveSpeed;;
-	if (Key.isDown(Key.DOWN)) pos.top += moveSpeed;
-	if (Key.isDown(Key.RIGHT)) pos.left += moveSpeed;
+	if (Key.isDown(Key.UP)) {
+		if (pos.top <= 0) {
+			pos.top = 0;
+		} else {
+			pos.top -= moveSpeed;
+		}
+	}
+	if (Key.isDown(Key.LEFT)) {
+		if (pos.left <= 0) {
+			pos.left = 0;
+		} else {
+			pos.left -= moveSpeed;
+		}
+	}
+	if (Key.isDown(Key.DOWN)) {
+		if ( (pos.top + size) >= 500 ) {
+			pos.top = 500 - size;
+		} else {
+			pos.top += moveSpeed;
+		}
+	}
+	if (Key.isDown(Key.RIGHT)) {
+		if ( (pos.left + size) >= 600 ) {
+			pos.left = 600 - size;
+		} else {
+			pos.left += moveSpeed;
+		}
+	}
 }
 
 
 setInterval(move, 10);
 
 function update() {
-	socket.emit('move',{
+	socket.emit('move', {
 		top: pos.top,
 		left: pos.left
 	});

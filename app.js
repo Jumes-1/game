@@ -41,39 +41,63 @@ function findValueArray(value, array) {
 sf.push([
 	'connection',
 	function(socket) {
+
 		// When someone joins tell everyone.
 		socket.broadcast.emit('joined', 'Jumes');
+
 		// Users id -> socket.client.conn.id
 		console.log(socket.client.conn.id + ' has joined.');
+
+		// Base setup for a new user.
 		currentPlayers.push([socket.client.conn.id, 20, 20]);
+		
+		// Tell everyone where everyone is.
 		socket.broadcast.emit('current', currentPlayers);
 		socket.emit('current', currentPlayers);
-		console.log(currentPlayers);
 
-		// When someone moves tell everyone.
+		// Wait for a user to move.
 		socket.on('move', function(data) {
+			// Get the id of the user that moved
 			var id = socket.client.conn.id;
-			console.log(id + ' moved');
+			
+			// Find the user in the array
 			var arrayID = findValueArray(id, currentPlayers);
+
+			// Set the position of the user on the board.
 			currentPlayers[arrayID][1] = data.top;
 			currentPlayers[arrayID][2] = data.left;
-			console.log(currentPlayers);
-			console.log(data);
+
+			// Tell everyone that a player has moved.
 			socket.broadcast.emit('moved', currentPlayers);
 			socket.emit('moved', currentPlayers);
 		});
 
+		// Wait for a user to submit a name change.
 		socket.on('name change', function(data) {
+			// Get the id of the user that wanted a name change.
 			var id = socket.client.conn.id;
+
+			// Find the user in the array
 			var arrayID = findValueArray(id, currentPlayers);
+
+			// Get the name they wanted, add it to their array.
 			currentPlayers[arrayID][3] = data;
+
+			// Tell everyone that user updated their username.
 			socket.broadcast.emit('current', currentPlayers);
 		});
 
 		socket.on('picture change', function(data) {
+			// Get the id of the user that wanted a name change.
 			var id = socket.client.conn.id;
+
+			// Find the user in the array
 			var arrayID = findValueArray(id, currentPlayers);
+
+			// Get the picture they wanted, add it to their array. 
 			currentPlayers[arrayID][4] = data;
+
+			// Tell everyone that user updated their picture.
 			socket.broadcast.emit('current', currentPlayers);
 		});
 	}
