@@ -45,7 +45,7 @@ sf.push([
 		socket.broadcast.emit('joined', 'Jumes');
 		// Users id -> socket.client.conn.id
 		console.log(socket.client.conn.id + ' has joined.');
-		currentPlayers.push([socket.client.conn.id, 0, 0]);
+		currentPlayers.push([socket.client.conn.id, 20, 20]);
 		socket.broadcast.emit('current', currentPlayers);
 		socket.emit('current', currentPlayers);
 		console.log(currentPlayers);

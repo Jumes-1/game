@@ -59,27 +59,9 @@ function changeName() {
 	socket.emit('name change', name);
 }
 
-function move() {
-	if (Key.isDown(Key.UP)) moveUp();
-	if (Key.isDown(Key.LEFT)) moveLeft();
-	if (Key.isDown(Key.DOWN)) moveDown();
-	if (Key.isDown(Key.RIGHT)) moveRight();
-}
-
-function moveUp() {
-	pos.top -= moveSpeed;
-}
-
-function moveDown() {
-	pos.top += moveSpeed;
-}
-
-function moveLeft() {
-	pos.left -= moveSpeed;
-}
-
-function moveRight() {
-	pos.left += moveSpeed;
+function changePic() {
+	var pic = $('#character').val();
+	socket.emit('picture change', pic);
 }
 
 function check() {
@@ -104,21 +86,49 @@ function check() {
 	$('.table-edit').html(str);
 }
 
+setInterval(check, 10);
+
+function move() {
+	if (Key.isDown(Key.UP)) pos.top -= moveSpeed;
+	if (Key.isDown(Key.LEFT)) pos.left -= moveSpeed;;
+	if (Key.isDown(Key.DOWN)) pos.top += moveSpeed;
+	if (Key.isDown(Key.RIGHT)) pos.left += moveSpeed;
+}
+
+
+setInterval(move, 10);
+
+function update() {
+	socket.emit('move',{
+		top: pos.top,
+		left: pos.left
+	});
+}
+
+setInterval(update, 10);
+
 function drawCanvas() {
 	$myCanvas.clearCanvas();
 
 	for (var i = 0; i < allPlayers.length; i++) {
 		var p = allPlayers[i];
-		$myCanvas.drawRect({
-			fillStyle: 'steelblue',
-			strokeStyle: 'blue',
-			strokeWidth: 4,
+
+		var defaultPic = "images/mario.png";
+
+		if (typeof p[4] === 'undefined') {} else {
+			defaultPic = p[4];
+		}
+
+		$myCanvas.drawImage({
+			source: defaultPic,
 			x: p[2], y: p[1],
-			fromCenter: false,
-			width: 20,
-			height: 20
+			width: 32,
+			height: 32,
+			fromCenter: false
 		});
-		var x = p[2] + 8;
+
+		// Names
+		var x = p[2] + 12;
 		var y = p[1] - 18;
 		if (myId == p[0]) {
 			$myCanvas.drawText({
@@ -145,12 +155,10 @@ function drawCanvas() {
 				strokeWidth: 1
 			});
 		}
+
 	}
 
 	requestAnimationFrame(drawCanvas);
 }
 
-setInterval(check, 10);
-setInterval(move, 10);
-setInterval(update, 10);
 requestAnimationFrame(drawCanvas);
