@@ -1,2 +1,22 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
+<div>
+	Enter your nickname here: 
+	<input type="text" name="username">
+	<input type="submit" value="Change" onclick="changeName();">
+</div>
+<div class="playarea">
+	<canvas id="canvas" width="1200" height="800"></canvas>
+</div>
+
+<table class="table-edit">
+	<tr>
+		<th>User</th>
+		<th>Top</th>
+		<th>Left</th>
+		<th>Nickname</th>
+	</tr>
+</table>
+
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script src="https://code.jquery.com/jquery-2.2.2.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jcanvas/16.4.1/jcanvas.min.js"></script>
+<script src="javascript/index.js"></script>
