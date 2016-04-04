@@ -1,10 +1,10 @@
 var Key = {
 	_pressed: {},
 
-	LEFT: 65,
-	UP: 87,
-	RIGHT: 68,
-	DOWN: 83,
+	A: 65,
+	W: 87,
+	D: 68,
+	S: 83,
 
 	isDown: function(keyCode) {
 		return this._pressed[keyCode];
@@ -19,6 +19,7 @@ var Key = {
 	}
 };
 
+// Wait for key presses.
 window.addEventListener('keyup', function(event) { Key.onKeyup(event); }, false);
 window.addEventListener('keydown', function(event) { Key.onKeydown(event); }, false);
 
@@ -31,6 +32,7 @@ var pos = {top: 0, left: 0};
 var moveSpeed = 2;
 var size = 32;
 
+// Connect to the server.
 var socket = io.connect('http://94.174.147.13');
 
 socket.on('joined', function(data) {
@@ -38,10 +40,12 @@ socket.on('joined', function(data) {
 });
 
 socket.on('moved', function(data) {
+	// When someone moves update our cache.
 	allPlayers = data;
 });
 
 socket.on('current', function(data) {
+	// Get our socket id.
 	myId = socket.id;
 	console.log(myId);
 	
@@ -49,23 +53,23 @@ socket.on('current', function(data) {
 	console.log(data);
 });
 
-function update() {
-	socket.emit('move',{
-		top: pos.top,
-		left: pos.left
-	});
-}
-
 function changeName() {
+	// Get the nickname from the input.
 	var name = $('input[name=username]').val();
+
+	// Send new nickname to the server.
 	socket.emit('name change', name);
 }
 
 function changePic() {
+	// Get picture from the select
 	var pic = $('#character').val();
+
+	// Send it to the server.
 	socket.emit('picture change', pic);
 }
 
+// TEST FEATURE //
 function check() {
 	var str = "<tbody><tr><th>User</th><th>Top</th><th>Left</th></tr>";
 
@@ -93,29 +97,38 @@ function check() {
 
 setInterval(check, 10);
 
+// END TEST FEATURE //
+
 function move() {
-	if (Key.isDown(Key.UP)) {
+	// Detect when the W key is being pressed.
+	if (Key.isDown(Key.W)) {
 		if (pos.top <= 0) {
 			pos.top = 0;
 		} else {
 			pos.top -= moveSpeed;
 		}
 	}
-	if (Key.isDown(Key.LEFT)) {
+
+	// Detect when the A key is being pressed.
+	if (Key.isDown(Key.A)) {
 		if (pos.left <= 0) {
 			pos.left = 0;
 		} else {
 			pos.left -= moveSpeed;
 		}
 	}
-	if (Key.isDown(Key.DOWN)) {
+
+	// Detect when the S key is being pressed.
+	if (Key.isDown(Key.S)) {
 		if ( (pos.top + size) >= 500 ) {
 			pos.top = 500 - size;
 		} else {
 			pos.top += moveSpeed;
 		}
 	}
-	if (Key.isDown(Key.RIGHT)) {
+
+	// Detect when the D key is being pressed.
+	if (Key.isDown(Key.D)) {
 		if ( (pos.left + size) >= 600 ) {
 			pos.left = 600 - size;
 		} else {
@@ -124,10 +137,10 @@ function move() {
 	}
 }
 
-
 setInterval(move, 10);
 
 function update() {
+	// Every 10ms tell the server our location.
 	socket.emit('move', {
 		top: pos.top,
 		left: pos.left
@@ -137,17 +150,22 @@ function update() {
 setInterval(update, 10);
 
 function drawCanvas() {
+	// Clear the canvas
 	$myCanvas.clearCanvas();
 
 	for (var i = 0; i < allPlayers.length; i++) {
 		var p = allPlayers[i];
 
+		// Set a default picture for all players
 		var defaultPic = "images/mario.png";
 
+		// Check if the player has a custom picture
 		if (typeof p[4] === 'undefined') {} else {
+			// Use it.
 			defaultPic = p[4];
 		}
 
+		// Draw the image on the canvas
 		$myCanvas.drawImage({
 			source: defaultPic,
 			x: p[2], y: p[1],
@@ -156,10 +174,11 @@ function drawCanvas() {
 			fromCenter: false
 		});
 
-		// Names
+		// Add the players name above the characters
 		var x = p[2] + 12;
 		var y = p[1] - 18;
 		if (myId == p[0]) {
+			// Check if the character is ours then put 'You' instead of the other.
 			$myCanvas.drawText({
 				text: 'You',
 				fontFamily: 'sans-serif',
@@ -170,10 +189,13 @@ function drawCanvas() {
 				strokeWidth: 1
 			});
 		} else {
+			// Check if the player has a custom name. 
 			var name = p[0];
 			if (typeof p[3] === 'undefined') {} else {
+				// If so set it here.
 				name = p[3];
 			}
+			// Draw name above character.
 			$myCanvas.drawText({
 				text: name,
 				fontFamily: 'sans-serif',
@@ -184,10 +206,9 @@ function drawCanvas() {
 				strokeWidth: 1
 			});
 		}
-
 	}
-
 	requestAnimationFrame(drawCanvas);
 }
 
+// Run it as fast as possible.
 requestAnimationFrame(drawCanvas);

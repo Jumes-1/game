@@ -25,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 
+// Find a value in an array
 function findValueArray(value, array) {
 	for (var i = 0; i < array.length; i++) {
 		if (array[i][0] == value) {
@@ -33,13 +34,18 @@ function findValueArray(value, array) {
 	}
 }
 
+// Create a random number
 function random(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+// Hold all the current players
 var currentPlayers = [];
+
+// Generate random coordinates for the gold star.
 var gold = { top: random(0, (500 - 32) ), left: random(0, (600 - 32) ) };
-currentPlayers = [['golden-star', gold.top, gold.left, 'Golden Star', 'images/golden-star.png']];
+// Add gold star to map.
+currentPlayers.push(['golden-star', gold.top, gold.left, 'Golden Star', 'images/golden-star.png']);
 
 // Socket Functions
 var sf = [];
@@ -80,21 +86,18 @@ sf.push([
 			for (var i = 1; i < currentPlayers.length; i++) {
 				var posWin = currentPlayers[i];
 
-				if (posWin[3] === null) {
-					console.log('Gone Null');
-				}
-
 				// This shit is a bitch to explain.
 				// Short -> Checks if any of the players are in the golden star.
 				if ( ( (( posWin[1] < top.max ) && ( posWin[1] > top.min )) || (( posWin[1] + 32 < top.max) && (posWin[1] + 32 > top.min)) ) &&
 				( (( posWin[2] < left.max ) && ( posWin[2] > left.min )) || (( posWin[2] + 32 < left.max ) && ( posWin[2] + 32  > left.min )) ) ) {
 					
-					if (typeof currentPlayers[i][5] === 'undefined') {
-						currentPlayers[i][5] = 1;
-					} else {
-						currentPlayers[i][5]++;
-					}
+					// Add more golden stars.
+					currentPlayers[i][5]++;
+
+					// Generate new position for the new golden star.
 					var gold = { top: random(0, (500 - 32) ), left: random(0, (600 - 32) ) };
+
+					// Set the new positions.
 					currentPlayers[0][1] = gold.top;
 					currentPlayers[0][2] = gold.left;
 				}
