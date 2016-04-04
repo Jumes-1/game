@@ -69,6 +69,13 @@ sf.push([
 			currentPlayers[arrayID][3] = data;
 			socket.broadcast.emit('current', currentPlayers);
 		});
+
+		socket.on('picture change', function(data) {
+			var id = socket.client.conn.id;
+			var arrayID = findValueArray(id, currentPlayers);
+			currentPlayers[arrayID][4] = data;
+			socket.broadcast.emit('current', currentPlayers);
+		});
 	}
 ]);
 

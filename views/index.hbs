@@ -3,6 +3,16 @@
 	<input type="text" name="username">
 	<input type="submit" value="Change" onclick="changeName();">
 </div>
+<div class="selection">
+	Pick a character: 
+	<select id="character">
+		<option value="images/mario.png">Mario</option>
+		<option value="images/mad-mushroom.png">Mad Mushroom</option>
+		<option value="images/mushroom.png">Mushroom</option>
+		<option value="images/ghost.png">Ghost</option>
+	</select>
+	<input type="submit" value="Change" onclick="changePic();">
+</div>
 <div class="playarea">
 	<canvas id="canvas" width="1200" height="800"></canvas>
 </div>
