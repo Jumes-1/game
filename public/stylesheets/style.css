@@ -7,10 +7,80 @@ a {
 	color: #00B7FF;
 }
 
+#canvas {
+	border: 2px black solid;
+}
+
 .playarea {
+	float: left;
 	padding: 10px;
 }
 
 .selection {
 	padding: 5px;
+}
+
+.chat {
+	margin-left: 5px;
+	float: right;
+	text-align: center;
+	border: 2px black solid;
+	max-width: 400px;
+	max-height: 500px;
+	width: 400px;
+	height: 500px;
+}
+
+.chat-users {
+	padding: 5px;
+}
+
+.chat-hold {
+	max-width: 400px;
+	max-height: 447px;
+	width: 400px;
+	height: 447px;
+	overflow-y: scroll;
+	border-bottom: 2px black solid;
+}
+
+.chat-input {
+	width: 97%;
+	margin: 2px;
+}
+
+.chat-area {
+	border-bottom: 2px black solid;
+	position: relative;
+	clear:both;
+}
+
+.chat-username {
+	float: left;
+	padding: 5px;
+}
+
+.chat-spacer {
+	float: left;
+	padding: 5px;
+}
+
+.chat-message {
+	float: left;
+	padding: 5px;
+}
+
+.chat-time {
+	padding: 5px;
+	float: right;
+}
+
+.chat-admin {
+	float: left;
+	padding: 5px;
+	color: red;
+}
+
+.table-edit {
+	
 }

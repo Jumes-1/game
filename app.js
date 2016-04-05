@@ -39,8 +39,21 @@ function random(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+function timeNow() {
+	var d = new Date(),
+		h = (d.getHours()<10?'0':'') + d.getHours(),
+		m = (d.getMinutes()<10?'0':'') + d.getMinutes();
+	return (h + ':' + m);
+}
+
 // Hold all the current players
 var currentPlayers = [];
+
+// Hold all current messages
+var currentMessages = [];
+
+// Random list of names
+var randomNames = ['Dave', 'Steve', 'Alan', 'John', 'Paul', 'Donald', 'Kevin', 'Gary', 'Larry', 'Peter', 'Carl', 'Joe' ];
 
 // Generate random coordinates for the gold star.
 var gold = { top: random(0, (500 - 32) ), left: random(0, (600 - 32) ) };
@@ -64,12 +77,25 @@ sf.push([
 		// random spawns for players
 		var player = { top: random(0, (500 - 32) ), left: random(0, (600 - 32) ) };
 
+		// Create a random name for the user.
+		var randomName = randomNames[random(0, randomNames.length - 1)];
+
 		// Base setup for a new user.
-		currentPlayers.push([socket.client.conn.id, random(0, (500 - 32) ), random(0, (600 - 32) ), socket.client.conn.id, 'images/mario.png', 0]);
+		currentPlayers.push([socket.client.conn.id, random(0, (500 - 32) ), random(0, (600 - 32) ), randomName, 'images/mario.png', 0]);
 
 		// Tell everyone where everyone is.
 		socket.broadcast.emit('current', currentPlayers);
 		socket.emit('current', currentPlayers);
+
+		// create the message
+		var message = randomName + " has joined!";
+
+		// Add the message to the array.
+		currentMessages.push(['admin', message, 1, timeNow()]);
+
+		// Tell everyone that a user has changed their name
+		socket.broadcast.emit('new message', currentMessages);
+		socket.emit('new message', currentMessages);
 
 		// Wait for a user to move.
 		socket.on('move', function(data) {
@@ -104,6 +130,16 @@ sf.push([
 					// Set the new positions.
 					currentPlayers[0][1] = gold.top;
 					currentPlayers[0][2] = gold.left;
+
+					// create the message
+					var message = posWin[3] + " has collected a star!";
+
+					// Add the message to the array.
+					currentMessages.push(['admin', message, 1, timeNow()]);
+
+					// Tell everyone that a user has changed their name
+					socket.broadcast.emit('new message', currentMessages);
+					socket.emit('new message', currentMessages);
 				}
 			}
 
@@ -120,8 +156,18 @@ sf.push([
 			// Find the user in the array
 			var arrayID = findValueArray(id, currentPlayers);
 
+			// Make the message
+			var message = currentPlayers[arrayID][3] + " has changed their name to " + data;
+
 			// Get the name they wanted, add it to their array.
 			currentPlayers[arrayID][3] = data;
+
+			// Add the message to the array.
+			currentMessages.push(['admin', message, 1, timeNow()]);
+
+			// Tell everyone that a user has changed their name
+			socket.broadcast.emit('new message', currentMessages);
+			socket.emit('new message', currentMessages);
 
 			// Tell everyone that user updated their username.
 			socket.broadcast.emit('current', currentPlayers);
@@ -141,12 +187,54 @@ sf.push([
 			socket.broadcast.emit('current', currentPlayers);
 		});
 
+		socket.on('message', function(data) {
+			// Get the id of the user who sent the message
+			var id = socket.client.conn.id;
+
+			// find the user in the array.
+			var arrayID = findValueArray(id, currentPlayers);
+
+			// Get the players nickname
+			var nickname = currentPlayers[arrayID][3];
+
+			// Add the users message and the users name to the message array
+			currentMessages.push([nickname, data, 0, timeNow()]);
+
+			// Add a admin message
+			//currentMessages.push(['admin', messageHere, 1]);
+			
+			// Check if there is more than 50 messages.
+			if (currentMessages.length > 50) {
+				// Delete the oldest message.
+				currentMessages.splice(0, 1);
+			}
+
+			// Tell everyone there is a new message.
+			socket.broadcast.emit('new message', currentMessages);
+			socket.emit('new message', currentMessages);
+
+			console.log('Added a message');
+
+		});
+
 		socket.on('disconnect', function() {
 			// Get the id of the user that has disconnected.
 			var id = socket.client.conn.id;
 
 			// Find the user that disconnected in the array.
 			var arrayID = findValueArray(id, currentPlayers);
+
+			var nickname = currentPlayers[arrayID][3];
+
+			// create the message
+			var message = nickname + " has left the game.";
+
+			// Add the message to the array.
+			currentMessages.push(['admin', message, 1, timeNow()]);
+
+			// Tell everyone that a user has changed their name
+			socket.broadcast.emit('new message', currentMessages);
+			socket.emit('new message', currentMessages);
 
 			// Delete that user from the array.
 			currentPlayers.splice(arrayID, 1);

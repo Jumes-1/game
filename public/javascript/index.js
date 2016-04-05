@@ -34,15 +34,25 @@ window.addEventListener('keydown', function(event) { Key.onKeydown(event); }, fa
 var $myCanvas = $('#canvas');
 
 var allPlayers = [];
+var chat = [];
 var myId;
 var pos = {top: 0, left: 0};
 var checked = false;
+var lastLength = 0;
 
 var moveSpeed = 2;
 var size = 32;
 
 // Connect to the server.
 var socket = io.connect('http://94.174.147.13');
+
+$('.chat-input').on('keydown', function(event) {
+	if (event.which === 13) {
+		socket.emit('message', $('.chat-input').val() );
+		$('.chat-input').val('');
+		event.preventDefault();
+	}
+});
 
 socket.on('joined', function(data) {
 	console.log(data + ' joined the game!');
@@ -74,6 +84,10 @@ socket.on('current', function(data) {
 	}
 });
 
+socket.on('new message', function(data) {
+	chat = data;
+});
+
 function changeName() {
 	// Get the nickname from the input.
 	var name = $('input[name=username]').val();
@@ -89,6 +103,31 @@ function changePic() {
 	// Send it to the server.
 	socket.emit('picture change', pic);
 }
+
+function manageMessages() {
+	if (lastLength !== chat.length) {
+		var str = "";
+		for (var i = 0; i < chat.length; i++) {
+			var shortChat = chat[i];
+
+			str += "<div class='chat-area'>";
+			if (shortChat[2] === 0) {
+				str += "<div class='chat-username'>" + shortChat[0] + "</div>";
+				str += "<div class='chat-spacer'>:</div>";
+				str += "<div class='chat-message'>" + shortChat[1] + "</div>";
+				str += "<div class='chat-time'>" + shortChat[3] + "</div>";
+			} else {
+				str += "<div class='chat-admin'>" + shortChat[1] + "</div>";
+				str += "<div class='chat-time'>" + shortChat[3] + "</div>";
+			}
+			str += "</div>";
+		}
+		$('.chat-hold').html(str);
+		$('.chat-hold').scrollTop(9999);
+	}
+}
+
+setInterval(manageMessages, 20);
 
 // TEST FEATURE //
 function check() {
