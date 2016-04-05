@@ -86,7 +86,6 @@ sf.push([
 			for (var i = 1; i < currentPlayers.length; i++) {
 				var posWin = currentPlayers[i];
 
-				// This shit is a bitch to explain.
 				// Short -> Checks if any of the players are in the golden star.
 				if ( ( (( posWin[1] < top.max ) && ( posWin[1] > top.min )) || (( posWin[1] + 32 < top.max) && (posWin[1] + 32 > top.min)) ) &&
 				( (( posWin[2] < left.max ) && ( posWin[2] > left.min )) || (( posWin[2] + 32 < left.max ) && ( posWin[2] + 32  > left.min )) ) ) {
