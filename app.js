@@ -61,8 +61,11 @@ sf.push([
 		console.log(socket.client.conn.id + ' has joined.');
 		var ClientID = socket.client.conn.id;
 
+		// random spawns for players
+		var player = { top: random(0, (500 - 32) ), left: random(0, (600 - 32) ) };
+
 		// Base setup for a new user.
-		currentPlayers.push([socket.client.conn.id, 20, 20, socket.client.conn.id, 'images/mario.png', 0]);
+		currentPlayers.push([socket.client.conn.id, random(0, (500 - 32) ), random(0, (600 - 32) ), socket.client.conn.id, 'images/mario.png', 0]);
 
 		// Tell everyone where everyone is.
 		socket.broadcast.emit('current', currentPlayers);

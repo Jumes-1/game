@@ -19,6 +19,14 @@ var Key = {
 	}
 };
 
+function findValueArray(value, array) {
+	for (var i = 0; i < array.length; i++) {
+		if (array[i][0] == value) {
+			return i;
+		}
+	}
+}
+
 // Wait for key presses.
 window.addEventListener('keyup', function(event) { Key.onKeyup(event); }, false);
 window.addEventListener('keydown', function(event) { Key.onKeydown(event); }, false);
@@ -28,6 +36,7 @@ var $myCanvas = $('#canvas');
 var allPlayers = [];
 var myId;
 var pos = {top: 0, left: 0};
+var checked = false;
 
 var moveSpeed = 2;
 var size = 32;
@@ -51,6 +60,18 @@ socket.on('current', function(data) {
 	
 	allPlayers = data;
 	console.log(data);
+
+	if (!(checked)) {
+		console.log('Getting server location');
+
+		var arrayId = findValueArray(myId, allPlayers);
+
+		var curPlayer = allPlayers[arrayId];
+
+		pos.top = curPlayer[1];
+		pos.left = curPlayer[2];
+		checked = true;
+	}
 });
 
 function changeName() {
@@ -100,39 +121,41 @@ setInterval(check, 10);
 // END TEST FEATURE //
 
 function move() {
-	// Detect when the W key is being pressed.
-	if (Key.isDown(Key.W)) {
-		if (pos.top <= 0) {
-			pos.top = 0;
-		} else {
-			pos.top -= moveSpeed;
+	if (checked) {
+		// Detect when the W key is being pressed.
+		if (Key.isDown(Key.W)) {
+			if (pos.top <= 0) {
+				pos.top = 0;
+			} else {
+				pos.top -= moveSpeed;
+			}
 		}
-	}
 
-	// Detect when the A key is being pressed.
-	if (Key.isDown(Key.A)) {
-		if (pos.left <= 0) {
-			pos.left = 0;
-		} else {
-			pos.left -= moveSpeed;
+		// Detect when the A key is being pressed.
+		if (Key.isDown(Key.A)) {
+			if (pos.left <= 0) {
+				pos.left = 0;
+			} else {
+				pos.left -= moveSpeed;
+			}
 		}
-	}
 
-	// Detect when the S key is being pressed.
-	if (Key.isDown(Key.S)) {
-		if ( (pos.top + size) >= 500 ) {
-			pos.top = 500 - size;
-		} else {
-			pos.top += moveSpeed;
+		// Detect when the S key is being pressed.
+		if (Key.isDown(Key.S)) {
+			if ( (pos.top + size) >= 500 ) {
+				pos.top = 500 - size;
+			} else {
+				pos.top += moveSpeed;
+			}
 		}
-	}
 
-	// Detect when the D key is being pressed.
-	if (Key.isDown(Key.D)) {
-		if ( (pos.left + size) >= 600 ) {
-			pos.left = 600 - size;
-		} else {
-			pos.left += moveSpeed;
+		// Detect when the D key is being pressed.
+		if (Key.isDown(Key.D)) {
+			if ( (pos.left + size) >= 600 ) {
+				pos.left = 600 - size;
+			} else {
+				pos.left += moveSpeed;
+			}
 		}
 	}
 }
@@ -141,10 +164,12 @@ setInterval(move, 10);
 
 function update() {
 	// Every 10ms tell the server our location.
-	socket.emit('move', {
-		top: pos.top,
-		left: pos.left
-	});
+	if (checked) {
+		socket.emit('move', {
+			top: pos.top,
+			left: pos.left
+		});
+	}
 }
 
 setInterval(update, 10);
