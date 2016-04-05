@@ -59,10 +59,11 @@ sf.push([
 
 		// Users id -> socket.client.conn.id
 		console.log(socket.client.conn.id + ' has joined.');
+		var ClientID = socket.client.conn.id;
 
 		// Base setup for a new user.
 		currentPlayers.push([socket.client.conn.id, 20, 20, socket.client.conn.id, 'images/mario.png', 0]);
-		
+
 		// Tell everyone where everyone is.
 		socket.broadcast.emit('current', currentPlayers);
 		socket.emit('current', currentPlayers);
@@ -86,6 +87,7 @@ sf.push([
 			for (var i = 1; i < currentPlayers.length; i++) {
 				var posWin = currentPlayers[i];
 
+				// This hard to explain.
 				// Short -> Checks if any of the players are in the golden star.
 				if ( ( (( posWin[1] < top.max ) && ( posWin[1] > top.min )) || (( posWin[1] + 32 < top.max) && (posWin[1] + 32 > top.min)) ) &&
 				( (( posWin[2] < left.max ) && ( posWin[2] > left.min )) || (( posWin[2] + 32 < left.max ) && ( posWin[2] + 32  > left.min )) ) ) {
@@ -135,6 +137,21 @@ sf.push([
 			// Tell everyone that user updated their picture.
 			socket.broadcast.emit('current', currentPlayers);
 		});
+
+		socket.on('disconnect', function() {
+			// Get the id of the user that has disconnected.
+			var id = socket.client.conn.id;
+
+			// Find the user that disconnected in the array.
+			var arrayID = findValueArray(id, currentPlayers);
+
+			// Delete that user from the array.
+			currentPlayers.splice(arrayID, 1);
+
+			console.log('A user has disconnected.');
+			console.log(socket.client.conn.id);
+		});
+
 	}
 ]);
 
