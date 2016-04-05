@@ -124,6 +124,7 @@ function manageMessages() {
 		}
 		$('.chat-hold').html(str);
 		$('.chat-hold').scrollTop(9999);
+		$('.player-total').html(allPlayers.length - 1);
 	}
 }
 
