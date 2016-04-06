@@ -39,12 +39,23 @@ function random(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+// Gets the current time in HH:MM
 function timeNow() {
 	var d = new Date(),
 		h = (d.getHours()<10?'0':'') + d.getHours(),
 		m = (d.getMinutes()<10?'0':'') + d.getMinutes();
 	return (h + ':' + m);
 }
+
+// Movement speed
+var moveSpeed = 4;
+
+// Size of a character in px
+var size = 32;
+
+// Size of the board.
+var width = 600;
+var height = 500;
 
 // Hold all the current players
 var currentPlayers = [];
@@ -105,9 +116,51 @@ sf.push([
 			// Find the user in the array
 			var arrayID = findValueArray(id, currentPlayers);
 
-			// Set the position of the user on the board.
-			currentPlayers[arrayID][1] = data.top;
-			currentPlayers[arrayID][2] = data.left;
+			// Shorten the x and y coords for the player
+			var tempTop = currentPlayers[arrayID][1];
+			var tempLeft = currentPlayers[arrayID][2];
+			
+			// Check which way they want to move.
+			// 
+			// If they press W they move upwards
+			if (data == 'W') {
+				if (tempTop <= 0) {
+					tempTop = 0;
+				} else {
+					tempTop -= moveSpeed;
+				}
+			}
+
+			// If they press A they move left
+			if (data == 'A') {
+				if (tempLeft <= 0) {
+					tempLeft = 0;
+				} else {
+					tempLeft -= moveSpeed;
+				}
+			}
+
+			// If they press S they move downwards.
+			if (data == 'S') {
+				if ( (tempTop + size) >= height ) {
+					tempTop = height - size;
+				} else {
+					tempTop += moveSpeed;
+				}
+			}
+
+			// If they press D they move right
+			if (data == 'D') {
+				if ( (tempLeft + size) >= width ) {
+					tempLeft = width - size;
+				} else {
+					tempLeft += moveSpeed;
+				}
+			}
+
+			// Then set the modified variable back to the main array.
+			currentPlayers[arrayID][1] = tempTop;
+			currentPlayers[arrayID][2] = tempLeft;
 
 			// Setup Golden star detection.
 			var top = { min: currentPlayers[0][1], max: currentPlayers[0][1] + 32 };

@@ -36,12 +36,7 @@ var $myCanvas = $('#canvas');
 var allPlayers = [];
 var chat = [];
 var myId;
-var pos = {top: 0, left: 0};
-var checked = false;
 var lastLength = 0;
-
-var moveSpeed = 2;
-var size = 32;
 
 // Connect to the server.
 var socket = io.connect('http://94.174.147.13');
@@ -71,17 +66,6 @@ socket.on('current', function(data) {
 	allPlayers = data;
 	console.log(data);
 
-	if (!(checked)) {
-		console.log('Getting server location');
-
-		var arrayId = findValueArray(myId, allPlayers);
-
-		var curPlayer = allPlayers[arrayId];
-
-		pos.top = curPlayer[1];
-		pos.left = curPlayer[2];
-		checked = true;
-	}
 });
 
 socket.on('new message', function(data) {
@@ -161,58 +145,28 @@ setInterval(check, 10);
 // END TEST FEATURE //
 
 function move() {
-	if (checked) {
-		// Detect when the W key is being pressed.
-		if (Key.isDown(Key.W)) {
-			if (pos.top <= 0) {
-				pos.top = 0;
-			} else {
-				pos.top -= moveSpeed;
-			}
-		}
+	// Detect when the W key is being pressed.
+	if (Key.isDown(Key.W)) {
+		socket.emit('move','W');
+	}
 
-		// Detect when the A key is being pressed.
-		if (Key.isDown(Key.A)) {
-			if (pos.left <= 0) {
-				pos.left = 0;
-			} else {
-				pos.left -= moveSpeed;
-			}
-		}
+	// Detect when the A key is being pressed.
+	if (Key.isDown(Key.A)) {
+		socket.emit('move','A');
+	}
 
-		// Detect when the S key is being pressed.
-		if (Key.isDown(Key.S)) {
-			if ( (pos.top + size) >= 500 ) {
-				pos.top = 500 - size;
-			} else {
-				pos.top += moveSpeed;
-			}
-		}
+	// Detect when the S key is being pressed.
+	if (Key.isDown(Key.S)) {
+		socket.emit('move','S');
+	}
 
-		// Detect when the D key is being pressed.
-		if (Key.isDown(Key.D)) {
-			if ( (pos.left + size) >= 600 ) {
-				pos.left = 600 - size;
-			} else {
-				pos.left += moveSpeed;
-			}
-		}
+	// Detect when the D key is being pressed.
+	if (Key.isDown(Key.D)) {
+		socket.emit('move','D');
 	}
 }
 
 setInterval(move, 10);
-
-function update() {
-	// Every 10ms tell the server our location.
-	if (checked) {
-		socket.emit('move', {
-			top: pos.top,
-			left: pos.left
-		});
-	}
-}
-
-setInterval(update, 10);
 
 function drawCanvas() {
 	// Clear the canvas
